@@ -200,3 +200,4 @@ alias open="xdg-open"
 ol() {
   ollama run llama3 $1
 }
+. "/home/flo/.deno/env"
