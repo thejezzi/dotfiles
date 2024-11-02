@@ -2454,6 +2454,6 @@ background_opacity 1.0
 
 
 # BEGIN_KITTY_THEME
-# Tokyo Night
+# YsDark
 include current-theme.conf
 # END_KITTY_THEME
