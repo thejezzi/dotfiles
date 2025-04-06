@@ -201,3 +201,18 @@ ol() {
   ollama run llama3 $1
 }
 . "/home/flo/.deno/env"
+
+# Convert video to gif file.
+# Usage: video2gif video_file (scale) (fps)
+video2gif() {
+  ffmpeg -y -i "${1}" -vf fps=${3:-10},scale=${2:-320}:-1:flags=lanczos,palettegen "${1}.png"
+  ffmpeg -i "${1}" -i "${1}.png" -filter_complex "fps=${3:-10},scale=${2:-320}:-1:flags=lanczos[x];[x][1:v]paletteuse" "${1}".gif
+  rm "${1}.png"
+}
+
+list_rpm() {
+  rpm -q --qf "%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n" gpg-pubkey | sort -k 2
+}
+
+alias gfvim="GOARCH=wasm GOOS=js nvim"
+alias nvimlab="NVIM_APPNAME=nvimlab nvim"
