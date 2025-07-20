@@ -95,6 +95,8 @@ To set up these dotfiles, follow these steps:
     scenarios.
   - `zshconfig`, `ohmyzsh`, `nvimconfig`, `gfvim`, `nvimlab`: Neovim-related aliases for opening
     configs and special Neovim instances.
+  - `chat`: Opens a full-screen Neovim buffer for direct interaction with
+    CodeCompanion, providing a ChatGPT-like experience in the terminal.
   - `ssh`: `kitty +kitten ssh` (for enhanced SSH in Kitty).
   - `le`, `lee`: `exa` aliases for better `ls` output with Git info and icons.
   - `setclip`, `getclip`: `xclip` aliases for clipboard interaction.
