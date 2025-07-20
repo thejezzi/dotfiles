@@ -1,192 +1,104 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# ==============================================================================
+# Zsh & Oh My Zsh Configuration
+# ==============================================================================
 
-# kitty ssh fix
-[ "$TERM" = "xterm-kitty" ] && alias ssh="kitty +kitten ssh"
-
+# --- Oh My Zsh ---
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
-eval "$(zoxide init zsh)"
-eval "$(starship init zsh)"
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-# ZSH_THEME="starship" # set by `omz`
-
-BULLETTRAIN_CONTEXT_FG="white"
-
-BULLETTRAIN_TIME_BG="#2596be"
-BULLETTRAIN_TIME_FG="white"
-
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-
-# Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="false"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
+# --- Plugins ---
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
   zsh-autosuggestions
   zsh-syntax-highlighting
   fast-syntax-highlighting
-  # zsh-autocomplete
   shellfirm
 )
 
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='nvim'
-else
-  export EDITOR='nvim'
-fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-alias zshconfig="nvim ~/.zshrc"
-alias ohmyzsh="nvim ~/.oh-my-zsh"
-alias nvimconfig="cd ~/.config/nvim && nvim"
-
+# --- Behavior ---
+ENABLE_CORRECTION="false"
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
+export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
 
-# source ~/.znap/zsh-snap/znap.zsh
-# source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# --- Editor ---
+# Set preferred editor for local and remote sessions
+export EDITOR='nvim'
 
-export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# ==============================================================================
+# Environment Variables
+# ==============================================================================
 
-export PATH="/usr/local/go/bin:$PATH"
+# --- Go ---
+export GOENV_ROOT="$HOME/.goenv"
+export GOROOT="/usr/local/go"
+export GOPATH="$HOME/go"
 export GOLANG_CI_DIR="$HOME/go/bin/golangci-lint"
-export PATH="$HOME/go/bin:$PATH"
 
+# --- Node Version Manager (NVM) ---
+export NVM_DIR="$HOME/.config/nvm"
+
+# --- Deno ---
 export DENO_INSTALL="/home/flo/.deno"
-export PATH="$DENO_INSTALL/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
 
-# export path to .bin directory for custom executables
+# --- Bun ---
+export BUN_INSTALL="$HOME/.bun"
+
+# --- PATH ---
+# The order of path elements is important. Paths are searched from left to right.
+export PATH="$GOENV_ROOT/bin:$PATH"
+export PATH="$GOROOT/bin:$PATH"
+export PATH="$GOPATH/bin:$PATH"
+export PATH="$DENO_INSTALL/bin:$PATH"
+export PATH="$BUN_INSTALL/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.bin:$PATH"
 export PATH="/usr/bin:$PATH"
 
-# Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+# ==============================================================================
+# Aliases
+# ==============================================================================
 
-# Useful commands
-
-alias cddd="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}' | xargs nvim"
-alias le='exa -l --git --icons --group-directories-first'
-alias lee='exa -1la --git --icons --group-directories-first'
-
-# alias that clears on key c
+# --- General ---
 alias c='clear'
-
-# Clipboard aliases to easily copy and paste
-alias setclip="xclip -selection c"
-alias getclip="xclip -selection c -o"
-
+alias open="xdg-open"
 alias explorer='xdg-open'
-
-cht() {
-  # curl "https://cht.sh/$1/$(echo $2 | tr ' ' '+')"
-  curl -s cheat.sh/$*
-}
-
-cht_advanced() {
-  # curl "https://cht.sh/$1/$(echo $2 | tr ' ' '+')"
-  # curl -s cht.sh/:list
-  read "?Enter language: " lang
-  read "?Enter query: " query
-  curl -s cheat.sh/$lang/$query | less
-}
-
-# bind ^y to call cht_advanced
-bindkey -s '^e' 'cht_advanced\n'
-
-export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
-
-# bun completions
-[ -s "/home/flo/.bun/_bun" ] && source "/home/flo/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
 alias yy="yt-dlp"
 
-# If yt-dlp is installed
-if command -v yt-dlp &> /dev/null
-then
+# --- Neovim ---
+if command -v nvim &> /dev/null; then
+  alias zshconfig="nvim ~/.zshrc"
+  alias ohmyzsh="nvim ~/.oh-my-zsh"
+  alias nvimconfig="cd ~/.config/nvim && nvim"
+  alias gfvim="GOARCH=wasm GOOS=js nvim"
+  alias nvimlab="NVIM_APPNAME=nvimlab nvim"
+fi
+
+# --- Kitty ---
+if command -v kitty &> /dev/null; then
+  [ "$TERM" = "xterm-kitty" ] && alias ssh="kitty +kitten ssh"
+fi
+
+# --- Exa ---
+if command -v exa &> /dev/null; then
+  alias le='exa -l --git --icons --group-directories-first'
+  alias lee='exa -1la --git --icons --group-directories-first'
+fi
+
+# --- Clipboard (xclip) ---
+if command -v xclip &> /dev/null; then
+  alias setclip="xclip -selection c"
+  alias getclip="xclip -selection c -o"
+fi
+
+# --- fzf & bat ---
+if command -v fzf &> /dev/null && command -v bat &> /dev/null; then
+  alias cddd="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}' | xargs nvim"
+fi
+
+# --- yt-dlp ---
+if command -v yt-dlp &> /dev/null; then
   alias y="yt-dlp"
   alias yq="yt-dlp -x --audio-format mp3"
   alias yv="yt-dlp -f bestvideo+bestaudio"
@@ -195,24 +107,95 @@ then
   alias yvl="yt-dlp -f bestvideo+bestaudio --merge-output-format mkv"
 fi
 
-alias open="xdg-open"
+if command -v lazygit &> /dev/null; then
+  alias lg=lazygit
+fi
 
-ol() {
-  ollama run llama3 $1
-}
-. "/home/flo/.deno/env"
+# ==============================================================================
+# Functions
+# ==============================================================================
 
-# Convert video to gif file.
-# Usage: video2gif video_file (scale) (fps)
-video2gif() {
-  ffmpeg -y -i "${1}" -vf fps=${3:-10},scale=${2:-320}:-1:flags=lanczos,palettegen "${1}.png"
-  ffmpeg -i "${1}" -i "${1}.png" -filter_complex "fps=${3:-10},scale=${2:-320}:-1:flags=lanczos[x];[x][1:v]paletteuse" "${1}".gif
-  rm "${1}.png"
-}
+# --- Cheat.sh ---
+if command -v curl &> /dev/null; then
+  cht() {
+    curl -s "cheat.sh/$1/$(echo "$2" | tr ' ' '+')"
+  }
 
-list_rpm() {
-  rpm -q --qf "%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n" gpg-pubkey | sort -k 2
-}
+  cht_advanced() {
+    read "?Enter language: " lang
+    read "?Enter query: " query
+    curl -s "cheat.sh/$lang/$query" | less
+  }
 
-alias gfvim="GOARCH=wasm GOOS=js nvim"
-alias nvimlab="NVIM_APPNAME=nvimlab nvim"
+  bindkey -s '^e' 'cht_advanced\n'
+fi
+
+# --- Ollama ---
+if command -v ollama &> /dev/null; then
+  ol() {
+    ollama run llama3 "$1"
+  }
+fi
+
+# --- FFmpeg ---
+if command -v ffmpeg &> /dev/null; then
+  video2gif() {
+    ffmpeg -y -i "$1" -vf "fps=${3:-10},scale=${2:-320}:-1:flags=lanczos,palettegen" "$1.png"
+    ffmpeg -i "$1" -i "$1.png" -filter_complex "[0:v]fps=${3:-10},scale=${2:-320}:-1:flags=lanczos[x];[x][1:v]paletteuse" "$1.gif"
+    rm "$1.png"
+  }
+fi
+
+# --- RPM ---
+if command -v rpm &> /dev/null; then
+  list_rpm() {
+    rpm -q --qf "%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n" gpg-pubkey | sort -k 2
+  }
+fi
+
+# ==============================================================================
+# Initializations
+# ==============================================================================
+
+# --- Oh My Zsh ---
+if [ -f "$ZSH/oh-my-zsh.sh" ]; then
+  source "$ZSH/oh-my-zsh.sh"
+fi
+
+# --- Zoxide ---
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init zsh)"
+fi
+
+# --- Starship ---
+if command -v starship &> /dev/null; then
+  eval "$(starship init zsh)"
+fi
+
+# --- Go ---
+if command -v goenv &> /dev/null; then
+  eval "$(goenv init -)"
+fi
+
+# --- NVM ---
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  . "$NVM_DIR/nvm.sh"
+fi
+if [ -s "$NVM_DIR/bash_completion" ]; then
+  . "$NVM_DIR/bash_completion"
+fi
+
+# --- Bun ---
+if [ -s "$HOME/.bun/_bun" ]; then
+  source "$HOME/.bun/_bun"
+fi
+
+# --- Deno ---
+if [ -f "$HOME/.deno/env" ]; then
+  . "$HOME/.deno/env"
+fi
+
+# --- Envman ---
+if [ -s "$HOME/.config/envman/load.sh" ]; then
+  source "$HOME/.config/envman/load.sh"
+fi
