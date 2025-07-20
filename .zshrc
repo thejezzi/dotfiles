@@ -73,6 +73,11 @@ if command -v nvim &> /dev/null; then
   alias nvimconfig="cd ~/.config/nvim && nvim"
   alias gfvim="GOARCH=wasm GOOS=js nvim"
   alias nvimlab="NVIM_APPNAME=nvimlab nvim"
+  # Opens up my neovim config with the ChatFullScreen command with runs CodeCompanion, disables the
+  # system prompt and executes the only vim command which runs the chat buffer as the only buffer
+  # allowing a chatgpt like experience in the terminal without the need to install a dubious llm cli
+  # interface.
+  alias chat="nvim -c ChatFullScreen"
 fi
 
 # --- Kitty ---
