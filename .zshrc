@@ -204,3 +204,6 @@ fi
 if [ -s "$HOME/.config/envman/load.sh" ]; then
   source "$HOME/.config/envman/load.sh"
 fi
+
+# opencode
+export PATH=/home/flo/.opencode/bin:$PATH
