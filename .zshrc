@@ -55,6 +55,18 @@ elif [ -x "/usr/local/bin/brew" ]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
+# --- macOS-specific Configuration ---
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # SSH configuration for macOS
+  # export SSH_ASKPASS_REQUIRE="force"
+  export SSH_AUTH_SOCK="$HOME/.ssh/agent"
+  
+  # Add Homebrew's OpenSSH to PATH if available
+  if command -v brew &> /dev/null; then
+    export PATH=$(brew --prefix openssh)/bin:$PATH
+  fi
+fi
+
 # --- PATH ---
 # The order of path elements is important. Paths are searched from left to right.
 export PATH="$GOENV_ROOT/bin:$PATH"
@@ -72,7 +84,10 @@ export PATH="/usr/bin:$PATH"
 
 # --- General ---
 alias c='clear'
-alias open="xdg-open"
+# Only alias 'open' on non-macOS systems (macOS has native 'open' command)
+if [[ "$OSTYPE" != "darwin"* ]]; then
+  alias open="xdg-open"
+fi
 alias explorer='xdg-open'
 alias yy="yt-dlp"
 
