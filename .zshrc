@@ -45,6 +45,16 @@ export DENO_INSTALL="/home/flo/.deno"
 # --- Bun ---
 export BUN_INSTALL="$HOME/.bun"
 
+# --- Homebrew ---
+# Check for Homebrew installation and add to PATH
+if [ -x "/opt/homebrew/bin/brew" ]; then
+  # Apple Silicon Macs
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x "/usr/local/bin/brew" ]; then
+  # Intel Macs
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 # --- PATH ---
 # The order of path elements is important. Paths are searched from left to right.
 export PATH="$GOENV_ROOT/bin:$PATH"
