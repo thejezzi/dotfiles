@@ -13,9 +13,9 @@ export ZSH="$HOME/.oh-my-zsh"
 plugins=(
   git
   zsh-autosuggestions
-  zsh-syntax-highlighting
+  # zsh-syntax-highlighting
   fast-syntax-highlighting
-  # shellfirm
+  shellfirm
   # zsh-defer
 )
 
@@ -32,29 +32,33 @@ autoload -Uz compinit && compinit -C
 export EDITOR='nvim'
 
 # ==============================================================================
+# Keybindings
+# ==============================================================================
+
+# Accept autosuggestion on <C-l>
+bindkey '^L' autosuggest-accept
+
+# ==============================================================================
 # Environment Variables
 # ==============================================================================
 
-# Performance Optimization ----------------------------------------------------
-# 
-# Disable NVM Autoload: This checks on each start which node version to activate
-# and is very very slow
-export NVM_AUTOLOAD=0
 
 # --- Go ---
+# export GOROOT="/usr/local/go"
+# export GOPATH="$HOME/go"
 export GOLANG_CI_DIR="$HOME/go/bin/golangci-lint"
 
 # --- Node Version Manager (NVM) ---
 export NVM_DIR="$HOME/.config/nvm"
 
 # --- Tmux Sessionizer ---
-export TMUX_SESSIONIZER_PATHS="$HOME/code $HOME/tmp"
+export TMUX_SESSIONIZER_PATHS="$HOME/code $HOME/tmp $HOME/code/check24"
 
 # --- Homebrew ---
 # Check for Homebrew installation and add to PATH
 if [ -x "/opt/homebrew/bin/brew" ]; then
   # Apple Silicon Macs
-  zsh-defer eval "$(/opt/homebrew/bin/brew shellenv)"
+    eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -x "/usr/local/bin/brew" ]; then
   # Intel Macs
   eval "$(/usr/local/bin/brew shellenv)"
@@ -72,20 +76,26 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   fi
 fi
 
+
 # --- PATH ---
 # The order of path elements is important. Paths are searched from left to right.
-export PATH="$GOENV_ROOT/bin:$PATH"
 export PATH="$GOROOT/bin:$PATH"
 export PATH="$GOPATH/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.bin:$PATH"
-export PATH="/usr/bin:$PATH"
+# export PATH="/usr/bin:$PATH"
 
 # --- Python user packages ---
 # Add Python user base bin directory for 'pip install --user' packages
 if command -v python3 &> /dev/null; then
   export PATH="$(python3 -c 'import site; print(site.USER_BASE)')/bin:$PATH"
 fi
+
+# opencode
+export PATH=/home/flo/.opencode/bin:$PATH
+export PATH=/Users/florian.hauptmann/.opencode/bin:$PATH
+
+export GEMINI_API_KEY=$(gpg -q -d ~/gemini.gpg)
 
 # ==============================================================================
 # Aliases
@@ -102,6 +112,11 @@ else
   alias explorer='open'
 fi
 alias yy="yt-dlp"
+alias rr='rm -rv'
+alias rf='rm -rfv'
+
+# --- Opencode ---
+alias oc='opencode'
 
 # --- Neovim ---
 if command -v nvim &> /dev/null; then
@@ -116,11 +131,11 @@ if command -v nvim &> /dev/null; then
   # interface.
   alias chat="nvim -c ChatFullScreen"
 fi
-
 # --- Kitty ---
 if command -v kitty &> /dev/null; then
   [ "$TERM" = "xterm-kitty" ] && alias ssh="kitty +kitten ssh"
 fi
+
 
 # --- Exa ---
 if command -v exa &> /dev/null; then
@@ -203,6 +218,14 @@ if command -v bat &> /dev/null; then
     LANG=C man $1 | bat -p -l man
   }
 fi
+# -- Forti Issues -- 
+# Client may have some problems just kill the damn thing. It's not worth solving as somebody already
+# works on a replacement
+killforti() {
+  sudo pkill -f FortiClient
+  sudo pkill -f Fortinet
+  sudo pkill -f fct
+}
 
 # ==============================================================================
 # Initializations
@@ -225,13 +248,20 @@ fi
 
 # --- Mise ---
 if command -v mise &> /dev/null; then
-  eval "$(~/.local/bin/mise activate zsh)"
+  # initialise completions with ZSH's compinit
+  autoload -Uz compinit && compinit
+  eval "$(mise activate zsh)"
 fi
 
 # --- NVM ---
 if [ -s "$NVM_DIR/nvm.sh" ]; then
-  zsh-defer . "$NVM_DIR/nvm.sh"
+  # Performance Optimization  
+  # Disable NVM Autoload: This checks on each start which node version to activate
+  # and is very very slow
+  export NVM_AUTOLOAD=0
+  zsh-defer . "$NVM_DIR/nvm.sh" --no-use
 fi
+
 if [ -s "$NVM_DIR/bash_completion" ]; then
   zsh-defer . "$NVM_DIR/bash_completion"
 fi
@@ -245,3 +275,5 @@ fi
 export PATH=$HOME/.opencode/bin:$PATH
 
 # zprof
+
+source <(moria completions zsh)
