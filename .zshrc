@@ -39,6 +39,9 @@ export GOLANG_CI_DIR="$HOME/go/bin/golangci-lint"
 # --- Node Version Manager (NVM) ---
 export NVM_DIR="$HOME/.config/nvm"
 
+# --- Tmux Sessionizer ---
+export TMUX_SESSIONIZER_PATHS="$HOME/code $HOME/tmp"
+
 # --- Deno ---
 export DENO_INSTALL="/home/flo/.deno"
 
@@ -77,6 +80,12 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.bin:$PATH"
 export PATH="/usr/bin:$PATH"
+
+# --- Python user packages ---
+# Add Python user base bin directory for 'pip install --user' packages
+if command -v python3 &> /dev/null; then
+  export PATH="$(python3 -c 'import site; print(site.USER_BASE)')/bin:$PATH"
+fi
 
 # ==============================================================================
 # Aliases

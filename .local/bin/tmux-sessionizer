@@ -1,0 +1,31 @@
+#!/bin/zsh
+
+# Set default paths if TMUX_SESSIONIZER_PATHS is not set
+if [[ -z $TMUX_SESSIONIZER_PATHS ]]; then
+    TMUX_SESSIONIZER_PATHS="$HOME/code $HOME/tmp"
+fi
+
+if [[ $# -eq 1 ]]; then
+    selected=$1
+else
+    selected=$(find $(eval echo $TMUX_SESSIONIZER_PATHS) -maxdepth 1 -type d \
+    | fzf-tmux -p --color="bg+:#2e383e,hl+:#d77f48,pointer:#da6362")
+fi
+
+if [[ -z $selected ]]; then
+    exit 0
+fi
+
+selected_name=$(basename "$selected" | tr . _)
+tmux_running=$(pgrep tmux)
+
+if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    tmux new-session -s $selected_name -c $selected
+    exit 0
+fi
+
+if ! tmux has-session -t=$selected_name 2> /dev/null; then
+    tmux new-session -ds $selected_name -c $selected
+fi
+
+tmux switch-client -t $selected_name
