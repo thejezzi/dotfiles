@@ -1,3 +1,4 @@
+# zmodload zsh/zprof
 # ==============================================================================
 # Zsh & Oh My Zsh Configuration
 # ==============================================================================
@@ -14,13 +15,17 @@ plugins=(
   zsh-autosuggestions
   zsh-syntax-highlighting
   fast-syntax-highlighting
-  shellfirm
+  # shellfirm
+  # zsh-defer
 )
+
+source ~/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh
 
 # --- Behavior ---
 ENABLE_CORRECTION="false"
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
 export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
+autoload -Uz compinit && compinit -C
 
 # --- Editor ---
 # Set preferred editor for local and remote sessions
@@ -29,6 +34,12 @@ export EDITOR='nvim'
 # ==============================================================================
 # Environment Variables
 # ==============================================================================
+
+# Performance Optimization ----------------------------------------------------
+# 
+# Disable NVM Autoload: This checks on each start which node version to activate
+# and is very very slow
+export NVM_AUTOLOAD=0
 
 # --- Go ---
 export GOENV_ROOT="$HOME/.goenv"
@@ -52,7 +63,7 @@ export BUN_INSTALL="$HOME/.bun"
 # Check for Homebrew installation and add to PATH
 if [ -x "/opt/homebrew/bin/brew" ]; then
   # Apple Silicon Macs
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+  zsh-defer eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -x "/usr/local/bin/brew" ]; then
   # Intel Macs
   eval "$(/usr/local/bin/brew shellenv)"
@@ -213,15 +224,23 @@ fi
 
 # --- Go ---
 if command -v goenv &> /dev/null; then
-  eval "$(goenv init -)"
+  # This disables rehashing of the shims path so a rehash is required after
+  # every tool install or go versio update
+  export GOENV_ROOT="$HOME/.goenv"
+  export PATH="$GOENV_ROOT/bin:$GOENV_ROOT/shims:$PATH"
+  export GOENV_DISABLE_GOPATH=1
+  export GOENV_DISABLE_REHASH=1
+  # Statt "eval $(goenv init -)" nur das Nötigste:
+  export GOENV_SHELL=zsh
+  export GOENV_HOOK_PATH="$GOENV_ROOT/etc/goenv.d"
 fi
 
 # --- NVM ---
 if [ -s "$NVM_DIR/nvm.sh" ]; then
-  . "$NVM_DIR/nvm.sh"
+  zsh-defer . "$NVM_DIR/nvm.sh" --no-use
 fi
 if [ -s "$NVM_DIR/bash_completion" ]; then
-  . "$NVM_DIR/bash_completion"
+  zsh-defer . "$NVM_DIR/bash_completion"
 fi
 
 # --- Bun ---
@@ -231,7 +250,7 @@ fi
 
 # --- Deno ---
 if [ -f "$HOME/.deno/env" ]; then
-  . "$HOME/.deno/env"
+  zsh-defer . "$HOME/.deno/env"
 fi
 
 # --- Envman ---
@@ -241,3 +260,5 @@ fi
 
 # opencode
 export PATH=/home/flo/.opencode/bin:$PATH
+
+# zprof
