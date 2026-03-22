@@ -12,14 +12,20 @@ export ZSH="$HOME/.oh-my-zsh"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 plugins=(
   git
+  sudo
+  extract
+  copypath
+  copyfile
+  fzf
+  fzf-tab
   zsh-autosuggestions
-  # zsh-syntax-highlighting
   fast-syntax-highlighting
   shellfirm
-  # zsh-defer
 )
 
-source ~/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh
+if [ -f ~/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh ]; then
+  source ~/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh
+fi
 
 # --- Behavior ---
 ENABLE_CORRECTION="false"
@@ -58,10 +64,13 @@ export TMUX_SESSIONIZER_PATHS="$HOME/code $HOME/tmp $HOME/code/check24"
 # Check for Homebrew installation and add to PATH
 if [ -x "/opt/homebrew/bin/brew" ]; then
   # Apple Silicon Macs
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+  eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -x "/usr/local/bin/brew" ]; then
   # Intel Macs
   eval "$(/usr/local/bin/brew shellenv)"
+elif [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+  # Linux Homebrew
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
 # --- macOS-specific Configuration ---
@@ -92,10 +101,11 @@ if command -v python3 &> /dev/null; then
 fi
 
 # opencode
-export PATH=/home/flo/.opencode/bin:$PATH
-export PATH=/Users/florian.hauptmann/.opencode/bin:$PATH
+export PATH="$HOME/.opencode/bin:$PATH"
 
-export GEMINI_API_KEY=$(gpg -q -d ~/gemini.gpg)
+if [ -f ~/gemini.gpg ] && command -v gpg &> /dev/null; then
+  zsh-defer -c 'export GEMINI_API_KEY=$(gpg -q -d ~/gemini.gpg 2>/dev/null)'
+fi
 
 # ==============================================================================
 # Aliases
@@ -137,10 +147,12 @@ if command -v kitty &> /dev/null; then
 fi
 
 
-# --- Exa ---
-if command -v exa &> /dev/null; then
-  alias le='exa -l --git --icons --group-directories-first'
-  alias lee='exa -1la --git --icons --group-directories-first'
+# --- Eza ---
+if command -v eza &> /dev/null; then
+  alias le='eza -l --git --icons --group-directories-first'
+  alias lee='eza -1la --git --icons --group-directories-first'
+else
+  echo "eza is not installed. Please install it with 'cargo install eza'"
 fi
 
 # --- Clipboard ---
@@ -155,6 +167,10 @@ fi
 # --- fzf & bat ---
 if command -v fzf &> /dev/null && command -v bat &> /dev/null; then
   alias cddd="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}' | xargs nvim"
+  
+  if command -v rg &> /dev/null; then
+    export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git/*"'
+  fi
 fi
 
 # --- yt-dlp ---
@@ -214,9 +230,7 @@ if command -v rpm &> /dev/null; then
 fi
 
 if command -v bat &> /dev/null; then
-  mman() {
-    LANG=C man $1 | bat -p -l man
-  }
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 fi
 # -- Forti Issues -- 
 # Client may have some problems just kill the damn thing. It's not worth solving as somebody already
@@ -271,9 +285,8 @@ if [ -s "$HOME/.config/envman/load.sh" ]; then
   source "$HOME/.config/envman/load.sh"
 fi
 
-# opencode
-export PATH=$HOME/.opencode/bin:$PATH
-
 # zprof
 
-source <(moria completions zsh)
+if command -v moria &> /dev/null; then
+  source <(moria completions zsh)
+fi
