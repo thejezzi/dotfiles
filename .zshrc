@@ -42,9 +42,6 @@ export EDITOR='nvim'
 export NVM_AUTOLOAD=0
 
 # --- Go ---
-export GOENV_ROOT="$HOME/.goenv"
-export GOROOT="/usr/local/go"
-export GOPATH="$HOME/go"
 export GOLANG_CI_DIR="$HOME/go/bin/golangci-lint"
 
 # --- Node Version Manager (NVM) ---
@@ -52,12 +49,6 @@ export NVM_DIR="$HOME/.config/nvm"
 
 # --- Tmux Sessionizer ---
 export TMUX_SESSIONIZER_PATHS="$HOME/code $HOME/tmp"
-
-# --- Deno ---
-export DENO_INSTALL="/home/flo/.deno"
-
-# --- Bun ---
-export BUN_INSTALL="$HOME/.bun"
 
 # --- Homebrew ---
 # Check for Homebrew installation and add to PATH
@@ -86,8 +77,6 @@ fi
 export PATH="$GOENV_ROOT/bin:$PATH"
 export PATH="$GOROOT/bin:$PATH"
 export PATH="$GOPATH/bin:$PATH"
-export PATH="$DENO_INSTALL/bin:$PATH"
-export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.bin:$PATH"
 export PATH="/usr/bin:$PATH"
@@ -104,11 +93,14 @@ fi
 
 # --- General ---
 alias c='clear'
-# Only alias 'open' on non-macOS systems (macOS has native 'open' command)
+alias dotsync="$HOME/dotfiles/sync.sh"
+# Only alias 'open' and 'explorer' on non-macOS systems (macOS has native 'open' command)
 if [[ "$OSTYPE" != "darwin"* ]]; then
   alias open="xdg-open"
+  alias explorer='xdg-open'
+else
+  alias explorer='open'
 fi
-alias explorer='xdg-open'
 alias yy="yt-dlp"
 
 # --- Neovim ---
@@ -136,8 +128,11 @@ if command -v exa &> /dev/null; then
   alias lee='exa -1la --git --icons --group-directories-first'
 fi
 
-# --- Clipboard (xclip) ---
-if command -v xclip &> /dev/null; then
+# --- Clipboard ---
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  alias setclip="pbcopy"
+  alias getclip="pbpaste"
+elif command -v xclip &> /dev/null; then
   alias setclip="xclip -selection c"
   alias getclip="xclip -selection c -o"
 fi
@@ -203,6 +198,12 @@ if command -v rpm &> /dev/null; then
   }
 fi
 
+if command -v bat &> /dev/null; then
+  mman() {
+    LANG=C man $1 | bat -p -l man
+  }
+fi
+
 # ==============================================================================
 # Initializations
 # ==============================================================================
@@ -222,35 +223,17 @@ if command -v starship &> /dev/null; then
   eval "$(starship init zsh)"
 fi
 
-# --- Go ---
-if command -v goenv &> /dev/null; then
-  # This disables rehashing of the shims path so a rehash is required after
-  # every tool install or go versio update
-  export GOENV_ROOT="$HOME/.goenv"
-  export PATH="$GOENV_ROOT/bin:$GOENV_ROOT/shims:$PATH"
-  export GOENV_DISABLE_GOPATH=1
-  export GOENV_DISABLE_REHASH=1
-  # Statt "eval $(goenv init -)" nur das Nötigste:
-  export GOENV_SHELL=zsh
-  export GOENV_HOOK_PATH="$GOENV_ROOT/etc/goenv.d"
+# --- Mise ---
+if command -v mise &> /dev/null; then
+  eval "$(~/.local/bin/mise activate zsh)"
 fi
 
 # --- NVM ---
 if [ -s "$NVM_DIR/nvm.sh" ]; then
-  zsh-defer . "$NVM_DIR/nvm.sh" --no-use
+  zsh-defer . "$NVM_DIR/nvm.sh"
 fi
 if [ -s "$NVM_DIR/bash_completion" ]; then
   zsh-defer . "$NVM_DIR/bash_completion"
-fi
-
-# --- Bun ---
-if [ -s "$HOME/.bun/_bun" ]; then
-  source "$HOME/.bun/_bun"
-fi
-
-# --- Deno ---
-if [ -f "$HOME/.deno/env" ]; then
-  zsh-defer . "$HOME/.deno/env"
 fi
 
 # --- Envman ---
@@ -259,6 +242,6 @@ if [ -s "$HOME/.config/envman/load.sh" ]; then
 fi
 
 # opencode
-export PATH=/home/flo/.opencode/bin:$PATH
+export PATH=$HOME/.opencode/bin:$PATH
 
 # zprof
