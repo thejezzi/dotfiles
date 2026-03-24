@@ -230,7 +230,7 @@ if command -v rpm &> /dev/null; then
 fi
 
 if command -v bat &> /dev/null; then
-  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+  export MANPAGER="sh -c 'bat -l man -p'"
 fi
 # -- Forti Issues -- 
 # Client may have some problems just kill the damn thing. It's not worth solving as somebody already
