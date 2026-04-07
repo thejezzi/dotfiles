@@ -245,6 +245,10 @@ killforti() {
 # Initializations
 # ==============================================================================
 
+if [ -f "$HOME/.zsh.local" ]; then
+  source "$HOME/.zsh.local"
+fi
+
 # --- Oh My Zsh ---
 if [ -f "$ZSH/oh-my-zsh.sh" ]; then
   source "$ZSH/oh-my-zsh.sh"

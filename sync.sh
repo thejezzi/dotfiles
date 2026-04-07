@@ -4,6 +4,7 @@ cd "$(dirname "$0")" || exit
 
 echo "🔄 Synchronizing Dotfiles with Stow..."
 # Run stow: --restow cleans up old links and creates new ones, --target=$HOME sets the destination
-stow --restow --target="$HOME" .
+stow --adopt --restow --target="$HOME" .
 
 echo "✅ Dotfiles successfully deployed to your home directory!"
+
