@@ -107,6 +107,10 @@ if [ -f ~/gemini.gpg ] && command -v gpg &> /dev/null; then
   zsh-defer -c 'export GEMINI_API_KEY=$(gpg -q -d ~/gemini.gpg 2>/dev/null)'
 fi
 
+if [ -f ~/openrouter.gpg ] && command -v gpg &> /dev/null; then
+  zsh-defer -c 'export OPENROUTER_API_KEY=$(gpg -q -d ~/openrouter.gpg 2>/dev/null)'
+fi
+
 # ==============================================================================
 # Aliases
 # ==============================================================================

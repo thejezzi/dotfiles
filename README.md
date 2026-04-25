@@ -8,13 +8,27 @@ This document serves as the ultimate tutorial and reference guide to everything 
 
 ## 🛠️ 1. Installation & Bootstrap
 
-To get started on a fresh machine:
+### 1.1 Setup on any machine
 
 ```bash
-git clone https://github.com/flo/dotfiles.git ~/dotfiles
+git clone https://github.com/thejezzi/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./sync.sh
 ```
+
+### 1.2 Daily updates
+
+```bash
+git -C ~/dotfiles pull
+~/dotfiles/sync.sh
+```
+
+### 1.3 Rollout to all devices
+
+1. **Main device first:** update this repo and run `./sync.sh`.
+2. **Commit and push:** commit your tested changes.
+3. **Other devices:** pull and run `~/dotfiles/sync.sh`.
+4. **Verify symlinks:** check `~/.zshrc`, `~/.tmux.conf`, and `~/.config/*`.
 
 **Post-Install Steps:**
 1. Open Tmux by typing `tmux`.
