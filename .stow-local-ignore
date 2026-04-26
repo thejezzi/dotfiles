@@ -1,8 +1,0 @@
-(^|/)\.git(/|$)
-^\.gitmodules$
-^\.stow-local-ignore$
-^README\.md$
-^\.markdownlint\.json$
-^sync\.sh$
-^migrate_from_stow_to_chezmoi\.sh$
-^\.chezmoiignore$
