@@ -103,13 +103,40 @@ fi
 # opencode
 export PATH="$HOME/.opencode/bin:$PATH"
 
-if [ -f ~/gemini.gpg ] && command -v gpg &> /dev/null; then
-  zsh-defer -c 'export GEMINI_API_KEY=$(gpg -q -d ~/gemini.gpg 2>/dev/null)'
-fi
+# --- API keys from gpg (non-blocking + stale-lock cleanup) ---
+# Prevents terminal startup hangs when gpg leaves stale pubring locks behind.
+_gpg_unlock_stale_pubring_lock() {
+  local lock_file="$HOME/.gnupg/public-keys.d/pubring.db.lock"
+  [[ -f "$lock_file" ]] || return 0
 
-if [ -f ~/openrouter.gpg ] && command -v gpg &> /dev/null; then
-  zsh-defer -c 'export OPENROUTER_API_KEY=$(gpg -q -d ~/openrouter.gpg 2>/dev/null)'
-fi
+  # lock format: "<pid>\n<host>"
+  local lock_pid
+  lock_pid="$(head -n 1 "$lock_file" 2>/dev/null | tr -cd '0-9')"
+
+  # If PID is gone, lock is stale -> remove lock artifacts.
+  if [[ -n "$lock_pid" ]] && ! kill -0 "$lock_pid" 2>/dev/null; then
+    rm -f "$HOME/.gnupg/public-keys.d/pubring.db.lock" "$HOME/.gnupg/public-keys.d/.#lk"*
+  fi
+}
+
+_gpg_export_secret_file() {
+  local var_name="$1"
+  local encrypted_file="$2"
+
+  [[ -n "$var_name" && -f "$encrypted_file" ]] || return 0
+  command -v gpg >/dev/null 2>&1 || return 0
+
+  _gpg_unlock_stale_pubring_lock
+
+  # Hard timeout so shell init can never block.
+  local secret
+  secret="$(timeout 1 gpg -q --batch --no-tty -d "$encrypted_file" 2>/dev/null || true)"
+
+  [[ -n "$secret" ]] && export "$var_name=$secret"
+}
+
+zsh-defer -c '_gpg_export_secret_file GEMINI_API_KEY "$HOME/gemini.gpg"'
+zsh-defer -c '_gpg_export_secret_file OPENROUTER_API_KEY "$HOME/openrouter.gpg"'
 
 # ==============================================================================
 # Aliases
