@@ -260,6 +260,11 @@ if command -v rpm &> /dev/null; then
   }
 fi
 
+# --- pi agent ---
+if command -v pi &> /dev/null; then
+  q() { pi -p "$*"; }
+fi
+
 if command -v bat &> /dev/null; then
   export MANPAGER="sh -c 'bat -l man -p'"
 fi
