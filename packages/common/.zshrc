@@ -137,6 +137,7 @@ _gpg_export_secret_file() {
 
 zsh-defer -c '_gpg_export_secret_file GEMINI_API_KEY "$HOME/gemini.gpg"'
 zsh-defer -c '_gpg_export_secret_file OPENROUTER_API_KEY "$HOME/openrouter.gpg"'
+zsh-defer -c '_gpg_export_secret_file TAVILY_API_KEY "$HOME/tavily.gpg"'
 
 # ==============================================================================
 # Aliases
