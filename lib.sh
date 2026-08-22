@@ -37,6 +37,54 @@ has_command() {
   command -v "$cmd" &>/dev/null
 }
 
+install_bin() {
+  local url="$1"
+  local name="${2:-${url##*/}}"
+  local dir="${3:-$HOME/.local/bin}"
+  local out=""
+
+  if [[ -z "$url" ]]; then
+    log_error "Usage: install_bin <url> [name] [dir]"
+    return 1
+  fi
+
+  if [[ -z "$name" ]]; then
+    log_error "Could not infer binary name from URL: $url"
+    return 1
+  fi
+
+  mkdir -p "$dir"
+  ensure_in_path "$dir" || true
+  out="${dir}/${name}"
+
+  if has_command curl; then
+    curl -fsSL "$url" -o "$out"
+  elif has_command wget; then
+    wget -qO "$out" "$url"
+  else
+    log_error "curl or wget is required"
+    return 1
+  fi
+
+  chmod +x "$out"
+  log_success "Installed ${name} to ${out}"
+}
+
+ensure_in_path() {
+  local dir="${1:-$HOME/.local/bin}"
+
+  case ":$PATH:" in
+  *":$dir:"*)
+    log_info "${dir} is already in PATH"
+    return 0
+    ;;
+  esac
+
+  log_warn "${dir} is not in PATH"
+  log_warn "Add this line to your shell config: export PATH=\"${dir}:\$PATH\""
+  return 1
+}
+
 is_macos() {
   [[ "$(uname -s)" == "Darwin" ]]
 }
