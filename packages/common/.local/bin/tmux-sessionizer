@@ -1,15 +1,30 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 # Set default paths if TMUX_SESSIONIZER_PATHS is not set
 if [[ -z $TMUX_SESSIONIZER_PATHS ]]; then
     TMUX_SESSIONIZER_PATHS="$HOME/code $HOME/tmp"
 fi
 
+# Only search directories that actually exist
+typeset -a paths=()
+for p in ${(z)TMUX_SESSIONIZER_PATHS}; do
+    [[ -d $p ]] && paths+=("$p")
+done
+
+if (( ${#paths[@]} == 0 )); then
+    echo "tmux-sessionizer: none of the configured paths exist: $TMUX_SESSIONIZER_PATHS" >&2
+    exit 1
+fi
+
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    selected=$(find $(eval echo $TMUX_SESSIONIZER_PATHS) -maxdepth 1 -type d \
-    | fzf-tmux -p --color="bg+:#2e383e,hl+:#d77f48,pointer:#da6362")
+    colors="bg+:#2e383e,hl+:#d77f48,pointer:#da6362"
+    if [[ -n $TMUX ]] && command -v fzf-tmux >/dev/null 2>&1; then
+        selected=$(find "${paths[@]}" -maxdepth 1 -type d | fzf-tmux -p --color="$colors")
+    else
+        selected=$(find "${paths[@]}" -maxdepth 1 -type d | fzf --color="$colors")
+    fi
 fi
 
 if [[ -z $selected ]]; then
@@ -20,12 +35,12 @@ selected_name=$(basename "$selected" | tr . _)
 tmux_running=$(pgrep tmux)
 
 if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-    tmux new-session -s $selected_name -c $selected
+    tmux new-session -s "$selected_name" -c "$selected"
     exit 0
 fi
 
-if ! tmux has-session -t=$selected_name 2> /dev/null; then
-    tmux new-session -ds $selected_name -c $selected
+if ! tmux has-session -t="$selected_name" 2> /dev/null; then
+    tmux new-session -ds "$selected_name" -c "$selected"
 fi
 
-tmux switch-client -t $selected_name
+tmux switch-client -t "$selected_name"
