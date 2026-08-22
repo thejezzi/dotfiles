@@ -27,11 +27,23 @@ if [ -f ~/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh ]; then
   source ~/.oh-my-zsh/custom/plugins/zsh-defer/zsh-defer.plugin.zsh
 fi
 
+# Fallback: execute immediately when zsh-defer is not installed, so the calls
+# below never break the shell on a fresh machine.
+if ! (( $+functions[zsh-defer] )); then
+  zsh-defer() {
+    if [[ "$1" == "-c" ]]; then
+      eval "$2"
+    else
+      "$@"
+    fi
+  }
+fi
+
 # --- Behavior ---
 ENABLE_CORRECTION="false"
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
 export ZSH_COMPDUMP=$ZSH/cache/.zcompdump-$HOST
-autoload -Uz compinit && compinit -C
+# compinit runs once inside oh-my-zsh (sourced below); no manual run needed here
 
 # --- Editor ---
 # Set preferred editor for local and remote sessions
@@ -50,9 +62,10 @@ bindkey '^L' autosuggest-accept
 
 
 # --- Go ---
+# GOROOT is only needed for custom Go installs; GOPATH defaults to ~/go.
 # export GOROOT="/usr/local/go"
-# export GOPATH="$HOME/go"
-export GOLANG_CI_DIR="$HOME/go/bin/golangci-lint"
+export GOPATH="${GOPATH:-$HOME/go}"
+export GOLANG_CI_DIR="$GOPATH/bin/golangci-lint"
 
 # --- Node Version Manager (NVM) ---
 export NVM_DIR="$HOME/.config/nvm"
@@ -81,14 +94,16 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   
   # Add Homebrew's OpenSSH to PATH if available
   if command -v brew &> /dev/null; then
-    export PATH=$(brew --prefix openssh)/bin:$PATH
+    export PATH="$(brew --prefix openssh)/bin:$PATH"
   fi
 fi
 
 
 # --- PATH ---
 # The order of path elements is important. Paths are searched from left to right.
-export PATH="$GOROOT/bin:$PATH"
+if [[ -n "${GOROOT:-}" ]]; then
+  export PATH="$GOROOT/bin:$PATH"
+fi
 export PATH="$GOPATH/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.bin:$PATH"
@@ -128,9 +143,14 @@ _gpg_export_secret_file() {
 
   _gpg_unlock_stale_pubring_lock
 
-  # Hard timeout so shell init can never block.
+  # Hard timeout so shell init can never block (timeout is GNU coreutils only,
+  # on macOS gpg --batch --no-tty must not prompt instead).
   local secret
-  secret="$(timeout 1 gpg -q --batch --no-tty -d "$encrypted_file" 2>/dev/null || true)"
+  if command -v timeout >/dev/null 2>&1; then
+    secret="$(timeout 1 gpg -q --batch --no-tty -d "$encrypted_file" 2>/dev/null || true)"
+  else
+    secret="$(gpg -q --batch --no-tty -d "$encrypted_file" 2>/dev/null || true)"
+  fi
 
   [[ -n "$secret" ]] && export "$var_name=$secret"
 }
@@ -145,7 +165,7 @@ zsh-defer -c '_gpg_export_secret_file TAVILY_API_KEY "$HOME/tavily.gpg"'
 
 # --- General ---
 alias c='clear'
-alias dotsync="$HOME/dotfiles/sync.sh"
+alias dotsync="git -C $HOME/dotfiles pull && $HOME/dotfiles/apply.sh"
 # Only alias 'open' and 'explorer' on non-macOS systems (macOS has native 'open' command)
 if [[ "$OSTYPE" != "darwin"* ]]; then
   alias open="xdg-open"
@@ -183,8 +203,6 @@ fi
 if command -v eza &> /dev/null; then
   alias le='eza -l --git --icons --group-directories-first'
   alias lee='eza -1la --git --icons --group-directories-first'
-else
-  echo "eza is not installed. Please install it with 'cargo install eza'"
 fi
 
 # --- Clipboard ---
@@ -263,7 +281,13 @@ fi
 
 # --- pi agent ---
 if command -v pi &> /dev/null; then
-  q() { pi -p "$*" | glow; }
+  q() {
+    if command -v glow &> /dev/null; then
+      pi -p "$*" | glow
+    else
+      pi -p "$*"
+    fi
+  }
 fi
 
 if command -v bat &> /dev/null; then
@@ -282,10 +306,10 @@ killforti() {
 zen_profile() {
   if ! command -v fd &> /dev/null; then
     echo "fd-find is not installed" >&2
-    exit 1
+    return 1
   fi
 
-  fd -H -t d ".*\.Default \(release\)*" $HOME -E cache -1
+  fd -H -t d ".*\.Default \(release\)*" "$HOME" -E cache -1
 }
 
 # ==============================================================================
@@ -309,8 +333,6 @@ fi
 
 # --- Mise ---
 if command -v mise &> /dev/null; then
-  # initialise completions with ZSH's compinit
-  autoload -Uz compinit && compinit
   eval "$(mise activate zsh)"
 fi
 
