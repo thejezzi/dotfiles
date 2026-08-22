@@ -263,7 +263,7 @@ fi
 
 # --- pi agent ---
 if command -v pi &> /dev/null; then
-  q() { pi -p "$*"; }
+  q() { pi -p "$*" | glow; }
 fi
 
 if command -v bat &> /dev/null; then
@@ -276,6 +276,16 @@ killforti() {
   sudo pkill -f FortiClient
   sudo pkill -f Fortinet
   sudo pkill -f fct
+}
+
+# --- Zen browser profile path search function ---
+zen_profile() {
+  if ! command -v fd &> /dev/null; then
+    echo "fd-find is not installed" >&2
+    exit 1
+  fi
+
+  fd -H -t d ".*\.Default \(release\)*" $HOME -E cache -1
 }
 
 # ==============================================================================
