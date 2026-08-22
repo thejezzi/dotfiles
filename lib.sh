@@ -1,7 +1,3 @@
-say_hello() {
-  echo "hi"
-}
-
 # ANSI color encoding
 ANSI_RESET=$'\033[0m'
 ANSI_RED=$'\033[31m'
@@ -174,11 +170,8 @@ apply_dotfiles() {
   log_info "Applying common dotfiles with stow"
   stow --dir="${WORKDIR}/packages" --target="$HOME" --restow --override='^.*' common
 
-  if is_macos && [[ -d "${WORKDIR}/packages/macos" ]]; then
-    migrate_stow_links macos "${WORKDIR}/packages"
-    log_info "Applying macOS overrides with stow"
-    stow --dir="${WORKDIR}/packages" --target="$HOME" --restow --override='^\.config/opencode/opencode\.json$' macos
-  fi
+  # Platform-specific packages (e.g. packages/macos) can be stowed on top here
+  # once a config actually needs to differ between systems.
 }
 
 migrate_stow_links() {
