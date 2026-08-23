@@ -97,6 +97,11 @@ nichts verändert, und `./apply.sh --unstow` einen vorherigen Lauf vollständig 
 
 ## Improvement 3 — Bootstrap, das eine leere Maschine wirklich fertigstellt
 
+**Status: umgesetzt** (siehe `install_tools`, `ensure_oh_my_zsh`,
+`ensure_zsh_plugins`, `ensure_tpm`, `ensure_default_shell` in `lib.sh`;
+verifiziert durch `make test-container` mit 48 Assertions). Offen bleiben
+optional: `--minimal`/`--full`-Modi und ein `make doctor`-Target.
+
 **Warum:** Aktuell ist „`./apply.sh`, das war's" laut README nur die halbe Wahrheit. Symlinks
 werden gelegt, aber oh-my-zsh, die 5 Custom-Plugins, `zsh-defer`, TPM und die im Alias-Block
 erwarteten CLIs fehlen. Deshalb steht in der laufenden Shell derzeit auch
