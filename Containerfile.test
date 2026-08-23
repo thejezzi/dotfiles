@@ -1,18 +1,8 @@
 # Fresh-machine test image for the dotfiles.
-# Mirrors what a new Fedora install has: zsh, stow and the base tools that
-# apply.sh installs — but none of the optional tooling (no oh-my-zsh, no
-# plugins, no eza/bat/fd/zoxide/starship), so fallback paths get exercised.
+# Deliberately installs NOTHING beyond the base image: apply.sh must bootstrap
+# zsh, stow, all CLI tools, oh-my-zsh, plugins and TPM itself. The smoke test
+# then asserts the results.
 FROM fedora:latest
-
-RUN dnf install -y -q \
-      zsh \
-      stow \
-      fzf \
-      ripgrep \
-      git \
-      findutils \
-      which \
-    && dnf clean all -q
 
 # Repo is mounted read-only at runtime (podman run -v ...:/dotfiles:ro,z).
 WORKDIR /dotfiles
