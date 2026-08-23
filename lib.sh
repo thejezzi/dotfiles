@@ -168,7 +168,10 @@ apply_dotfiles() {
   migrate_stow_links common
 
   log_info "Applying common dotfiles with stow"
-  stow --dir="${WORKDIR}/packages" --target="$HOME" --restow --override='^.*' common
+  # --no-folding prevents stow from symlinking whole directories (e.g. ~/.config)
+  # into the repo. Without it, apps writing into those directories would drop
+  # untracked files into the dotfiles checkout on a fresh machine.
+  stow --dir="${WORKDIR}/packages" --target="$HOME" --restow --no-folding --override='^.*' common
 
   # Platform-specific packages (e.g. packages/macos) can be stowed on top here
   # once a config actually needs to differ between systems.
