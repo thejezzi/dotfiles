@@ -1,0 +1,6 @@
+# plugin-name	repository-url
+zsh-autosuggestions	https://github.com/zsh-users/zsh-autosuggestions.git
+fast-syntax-highlighting	https://github.com/zdharma-continuum/fast-syntax-highlighting.git
+fzf-tab	https://github.com/Aloxaf/fzf-tab.git
+shellfirm	https://github.com/kaplanelad/shellfirm.git
+zsh-defer	https://github.com/romkatv/zsh-defer.git

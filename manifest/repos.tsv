@@ -1,0 +1,5 @@
+# name	url
+oh-my-zsh	https://github.com/ohmyzsh/ohmyzsh.git
+tpm	https://github.com/tmux-plugins/tpm.git
+brew-installer	https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+mise-installer	https://mise.run

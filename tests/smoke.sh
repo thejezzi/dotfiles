@@ -20,6 +20,11 @@ set -uo pipefail
 
 DOTFILES="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
+# The smoke test uses the same manifest parser as apply.sh. It intentionally
+# does not maintain a second list of expected tools or plugins.
+# shellcheck source=/dev/null
+source "$DOTFILES/lib/manifest.sh"
+
 PASS=0
 FAIL=0
 
@@ -63,9 +68,9 @@ else
 fi
 
 echo "== 3. Tools installed by apply.sh =="
-for cmd in zsh stow git curl tmux fzf rg fd eza bat zoxide; do
-  check "command available: $cmd" command -v "$cmd"
-done
+while IFS=$'\t' read -r command_name _fedora_package _macos_package; do
+  check "command available: $command_name" command -v "$command_name"
+done < <(manifest_rows "$DOTFILES/manifest/tools.tsv")
 
 echo "== 4. Symlink assertions =="
 assert_linked() { # assert_linked <relative-path>
@@ -117,10 +122,10 @@ check "zsh syntax: tmux-sessionizer" \
   zsh -n "$DOTFILES/packages/common/.local/bin/tmux-sessionizer"
 check "oh-my-zsh installed" test -d "$HOME/.oh-my-zsh/.git"
 
-for plugin in zsh-autosuggestions fast-syntax-highlighting fzf-tab shellfirm zsh-defer; do
-  check "plugin installed: $plugin" \
-    test -d "$HOME/.oh-my-zsh/custom/plugins/$plugin"
-done
+while IFS=$'\t' read -r plugin_name _repository; do
+  check "plugin installed: $plugin_name" \
+    test -d "$HOME/.oh-my-zsh/custom/plugins/$plugin_name"
+done < <(manifest_rows "$DOTFILES/manifest/zsh-plugins.tsv")
 
 zsh_path="$(command -v zsh)"
 user_shell="$(getent passwd "$(id -un)" 2>/dev/null | cut -d: -f7)"
@@ -133,9 +138,11 @@ fi
 echo "== 7. tmux ecosystem =="
 check "TPM installed" test -d "$HOME/.tmux/plugins/tpm/.git"
 # Directory names are the repo names, e.g. dracula/tmux clones into "tmux".
-for plugin in tmux tmux-continuum tmux-window-name tmux-yank extrakto tmux-sessionx vim-tmux-navigator; do
+while IFS= read -r repository; do
+  plugin="${repository##*/}"
   check "tmux plugin installed: $plugin" test -d "$HOME/.tmux/plugins/$plugin"
-done
+done < <(awk -F"'" '/^[[:space:]]*set(-window)?[[:space:]]+-g[[:space:]]+@plugin/ {print $2}' \
+  "$DOTFILES/packages/common/.tmux.conf")
 
 echo "== 8. Fresh zsh startup =="
 startup_out="$(zsh -i -c 'echo SMOKE_STARTUP_OK' 2>&1)"

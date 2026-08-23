@@ -43,25 +43,25 @@ config actually needs to differ between systems.
 
 ## How it works
 
-All the logic sits in `lib.sh`, `apply.sh` is just the entry point.
+`apply.sh` is the orchestration layer. It reads the data files in `manifest/`
+and passes their values to the reusable mechanisms in `lib/`:
 
-`install_tools()` checks each expected command and installs the missing ones,
-mapping command names to package names per platform (`rg` → `ripgrep`,
-`fd` → `fd-find` on Fedora). `ensure_oh_my_zsh()`, `ensure_zsh_plugins()` and
-`ensure_tpm()` clone their repos when missing and fast-forward them when clean;
-repos with local changes are skipped with a note. `ensure_default_shell()`
-switches the login shell to zsh via `chsh`.
+- `manifest/tools.tsv` maps commands to Fedora and macOS package names.
+- `manifest/zsh-plugins.tsv` lists plugin names and repository URLs.
+- `manifest/repos.tsv` contains bootstrap repository and installer URLs.
+
+The library modules contain no concrete tool or plugin lists. `lib/pkg.sh` knows
+how to use `dnf` or Homebrew, `lib/vcs.sh` knows how to clone or update a
+repository without overwriting local changes, and `lib/stow.sh` manages the
+links. `lib/bin.sh` keeps the reusable `install_bin`, `ensure_in_path` (plus the
+`ensure_path` compatibility alias) and `mise_use` utilities. `install_bin` takes
+its download URL as an argument; `mise_use` takes its version and installer URL,
+so these helpers contain no provider-specific bootstrap data.
 
 `apply_dotfiles()` stows `common` into `$HOME`. Before stowing,
 `migrate_stow_links()` walks the package and cleans up stale symlinks in `$HOME`
 that would otherwise make stow choke. If a real (non-symlink) file is in the
 way, it warns and leaves it alone instead of clobbering anything.
-
-The rest of `lib.sh` is a grab bag of helpers I reuse elsewhere: colored log
-functions, `system_install` for installing packages with whatever the native
-package manager is, `install_bin` for fetching single binaries from a URL into
-`~/.local/bin`, OS detection (`is_macos`, `is_fedora`), and a small `ask` prompt
-for yes/no questions.
 
 ## Testing
 

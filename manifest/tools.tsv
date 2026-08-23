@@ -1,0 +1,12 @@
+# command	fedora-package	macos-package
+zsh	zsh	zsh
+stow	stow	stow
+git	git	git
+curl	curl	curl
+tmux	tmux	tmux
+fzf	fzf	fzf
+rg	ripgrep	ripgrep
+fd	fd-find	fd
+eza	eza	eza
+bat	bat	bat
+zoxide	zoxide	zoxide
